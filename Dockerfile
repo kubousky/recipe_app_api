@@ -1,4 +1,5 @@
-FROM python:3.7-alpine
+# syntax=docker/dockerfile:1
+FROM python:3
 MAINTAINER kubousky
 
 ENV PYTHONUNBUFFERED 1
@@ -9,9 +10,9 @@ COPY ./requirements.txt /requirements.txt
 RUN pip install -r /requirements.txt
 # RUN apk del .tmp-build-deps 
 
-RUN mkdir /app
+# RUN mkdir /app
 WORKDIR /app
 COPY ./app /app
 
-RUN adduser -D user
+RUN adduser user
 USER user
