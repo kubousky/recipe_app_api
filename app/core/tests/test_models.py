@@ -3,8 +3,17 @@ from django.contrib.auth import get_user_model
 
 from core import models
 
+import logging
+
+logging.basicConfig(
+    filename="test.log",
+    filemode="w",
+    level=logging.INFO,
+    format="%(name)s - %(levelname)s - %(message)s"
+)
 
 def sample_user(email='test@kubousky.com', password='testpass'):
+    logging.info('get_user_model(): %s ' % get_user_model())
     return get_user_model().objects.create_user(email, password)
 
 class ModelTests(TestCase):
@@ -46,3 +55,11 @@ class ModelTests(TestCase):
         )
 
         self.assertEqual(str(tag), tag.name)
+
+    def test_ingredient_str(self):
+        ingredient = models.Ingredient.objects.create(
+            user=sample_user(),
+            name='Cucumber'   
+        )
+
+        self.assertEqual(str(ingredient), ingredient.name)
