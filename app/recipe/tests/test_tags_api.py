@@ -9,6 +9,16 @@ from core.models import Tag
 
 from recipe.serializers import TagSerializer
 
+import logging
+
+logging.basicConfig(
+    filename="test.log",
+    filemode="w",
+    level=logging.INFO,
+    format="%(name)s - %(levelname)s - %(message)s"
+)
+
+
 TAGS_URL = reverse('recipe:tag-list')
 
 
@@ -58,3 +68,19 @@ class PrivateTagsAPITests(TestCase):
         self.assertEqual(res.status_code, status.HTTP_200_OK)
         self.assertEqual(len(res.data), 1)
         self.assertEqual(res.data[0]['name'], tag.name)
+
+    def test_create_tag_successful(self):
+        payload = {'name': 'Test_tag'}
+        self.client.post(TAGS_URL, payload)
+
+        exists = Tag.objects.filter(
+            user=self.user,
+            name=payload['name']
+        ).exists()
+        self.assertTrue(exists)
+
+    def test_create_tag_invalid(self):
+        payload = {'name': ''}
+        res = self.client.post(TAGS_URL, payload)
+
+        self.assertEqual(res.status_code, status.HTTP_400_BAD_REQUEST)
