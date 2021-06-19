@@ -1,3 +1,4 @@
+from django.db.models import query
 from django.http.request import QueryDict
 from rest_framework.decorators import action
 from rest_framework.response import Response
@@ -16,7 +17,15 @@ class BaseRecipeAttrViewSet(viewsets.GenericViewSet,
     permission_classes = (IsAuthenticated,)
 
     def get_queryset(self):
-        return self.queryset.filter(user=self.request.user).order_by('-name')
+
+        assigned_only = bool(
+            int(self.request.query_params.get('assigned_only', 0))
+        )
+        queryset = self.queryset
+        if assigned_only:
+            queryset = queryset.filter(recipe__isnull=False)
+             
+        return queryset.filter(user=self.request.user).order_by('-name').distinct()
 
     def perform_create(self, serializers):
         serializers.save(user=self.request.user)
